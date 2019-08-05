@@ -31,7 +31,7 @@ To display TeamSpeak3 console, run it with ``-console`` parameter.
 -----
 
 ### TODO
-* Make it work with Aurora - send messages as post events to Aurora's http server
-* Fix formatting
-* Try to fix hotkeys detection
-* Check if kicks from channel/server are working properly
+- [ ] Make it work with Aurora - send messages as post events to Aurora's http server
+- [x] Fix formatting
+- [ ] Try to fix hotkeys detection
+- [ ] Check if kicks from channel/server are working properly
