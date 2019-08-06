@@ -22,16 +22,17 @@ To display TeamSpeak3 console, run it with ``-console`` parameter.
 * Receiving PM messages (pokes)
 * Receiving text messages in channel
 * Talking users' username
+* Muted/deafened status
 -----
 
 ### Issues
 * Moving between channels and new user connections/disconnections are displayed as the same message
 * Sending texts in channel displays message in console (just like receiving it)
-* Hotkey detection not wokring
+* ~~Hotkey detection not wokring~~ - non usable in this plugin... removed
 -----
 
 ### TODO
 - [ ] Make it work with Aurora - send messages as post events to Aurora's http server
 - [x] Fix formatting
-- [ ] Try to fix hotkeys detection
-- [ ] Check if kicks from channel/server are working properly
+- [x] ~~Try to fix hotkeys detection~~ - non usable in this plugin... removed
+- [x] Check if kicks from channel/server are working properly

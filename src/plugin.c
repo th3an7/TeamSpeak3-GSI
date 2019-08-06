@@ -250,8 +250,13 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	}
 }
 
-void ts3plugin_onHotkeyEvent(const char* keyword) {
-	printf("PLUGIN: Hotkey event: %s\n", keyword);
-	/* Identify the hotkey by keyword ("keyword_1", "keyword_2" or "keyword_3" in this example) and handle here... */
-}
+void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
 
+	if (flag == CLIENT_OUTPUT_MUTED) {
+		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client output muted: %s\n", newValue);
+	}
+
+	if (flag == CLIENT_INPUT_MUTED) {
+		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client input muted: %s\n", newValue);
+	}
+}
