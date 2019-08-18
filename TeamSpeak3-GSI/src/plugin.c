@@ -93,7 +93,7 @@ int ts3plugin_apiVersion() {
 /* Plugin author */
 const char* ts3plugin_author() {
 	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
-	return "Th3 Ant 'n SnakePin?";
+	return "Th3 Ant"; // 'n SnakePin?
 }
 
 /* Plugin description */
