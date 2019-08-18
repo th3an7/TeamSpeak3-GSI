@@ -7,6 +7,8 @@ Seriously... this doesn't work yet - for now it will display some of the events 
 To display TeamSpeak3 console, run it with ``-console`` parameter.
 
 # How to test
+0. Build libcurl somehow, I used CMake
+
 1. Build everything in Visual Studio (be sure to compile it with correct CPU arch - 32bit for 32bit TS, 64bit for 64bit TS - otherwise the plugin won't be loaded).
 
 2. After succesfull building, copy ``.dll`` file to ``%appdata%/TS3Client/plugins`` folder and be sure it's correctly loaded and enabled in TeamSpeak itself

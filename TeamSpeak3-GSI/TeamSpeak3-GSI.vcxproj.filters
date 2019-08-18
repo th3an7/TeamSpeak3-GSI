@@ -17,37 +17,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="plugin.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="plugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ts3_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\clientlib_publicdefinitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_definitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_errors.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_errors_rare.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_rare_definitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamlog\logtypes.h">
+    <ClInclude Include="include\teamlog\logtypes.h">
       <Filter>Header Files\teamlog</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\plugin_definitions.h">
+    <ClInclude Include="include\teamspeak\clientlib_publicdefinitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\teamspeak\public_definitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\teamspeak\public_errors.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\teamspeak\public_errors_rare.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\teamspeak\public_rare_definitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\plugin_definitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ts3_functions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\plugin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
