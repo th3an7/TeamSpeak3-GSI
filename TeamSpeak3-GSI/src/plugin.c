@@ -230,48 +230,48 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int n
 
 	if (newStatus == STATUS_CONNECTING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connecting - status 1\n");
-		send_state("{\"Connected\":\"1\"}");
+		send_state("{\"connected\": 1}");
 	}
 
 	if (newStatus == STATUS_CONNECTED) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connected - status 2\n");
-		send_state("{\"Connected\":\"2\"}");
+		send_state("{\"connected\": 2}");
 	}
 
 	if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Establishing connection - status 3\n");
-		send_state("{\"Connected\":\"3\"}");
+		send_state("{\"connected\": 3}");
 	}
 
 	if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
 		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
-		send_state("{\"Connected\":\"4\"}");
+		send_state("{\"connected\": 4}");
 	}
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 
 	printf("PLUGIN onClientMoveEvent: User moved\n");
-	send_state("{\"Status\":\"Moved\"}");
+	send_state("{\"moved\": true}");
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 
 	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
-	send_state("{\"Status\":\"Kicked - Channel\"}");
+	send_state("{\"kicked\": 1}");
 }
 
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 
 	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
-	send_state("{\"Status\":\"Kicked - Server\"}");
+	send_state("{\"kicked\": 2}");
 }
 
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
 	anyID myID;
 
 	printf("PLUGIN onClientPokeEvent: Received PM message\n");
-	send_state("{\"Status\":\"PM\"}");
+	send_state("{\"text\": 0}");
 
 	return 0;  /* 0 = handle normally, 1 = client will ignore the poke */
 }
@@ -279,7 +279,7 @@ int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClie
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
 
 	printf("PLUGIN: onTextMessageEvent: Received text message\n");
-	send_state("{\"Status\":\"Text\"}");
+	send_state("{\"text\": 1}");
 
 	return 0;
 }
@@ -290,11 +290,11 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	if (ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
 		if (status == STATUS_TALKING) {
 			printf("--> %s starts talking\n", name);
-			send_state("{\"Status\":\"Talking\"}");
+			send_state("{\"talking\": true}");
 		}
 		else {
 			printf("--> %s stops talking\n", name);
-			send_state("{\"Status\":\"Not Talking\"}");
+			send_state("{\"talking\": false}");
 		}
 	}
 }
@@ -304,10 +304,10 @@ void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID,
 	if (flag == CLIENT_OUTPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client output muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			send_state("{\"Status\":\"Output Muted\"}");
+			send_state("{\"outputMuted\": true}");
 		}
 		else {
-			send_state("{\"Status\":\"Output Unmuted\"}");
+			send_state("{\"outputMuted\": false}");
 		}
 		
 	}
@@ -315,11 +315,11 @@ void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID,
 	if (flag == CLIENT_INPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client input muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			send_state("{\"Status\":\"Input Muted\"}");
+			send_state("{\"inputMuted\": true}");
 		}
 		else
 		{
-			send_state("{\"Status\":\"Input Unmuted\"}");
+			send_state("{\"inputMuted\": false}");
 		}
 		
 	}
