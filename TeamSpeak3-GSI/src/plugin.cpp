@@ -6,6 +6,7 @@
 #include <teamspeak/public_rare_definitions.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <ts3_functions.h>
+#include <nlohmann/json.hpp>
 #include "plugin_exports.hpp"
 
 
