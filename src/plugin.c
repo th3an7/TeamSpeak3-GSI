@@ -229,52 +229,63 @@ int send_state(void) {
 	return 0;
 }
 
+
 void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int newStatus, unsigned int errorNumber) {
 
 	if (newStatus == STATUS_CONNECTING) {
-		printf("PLUGIN onConnectStatusChangeEvent: Connecting - status 1\n");
+		printf("PLUGIN: onConnectStatusChangeEvent: Connecting - status 1\n");
 	}
 
 	if (newStatus == STATUS_CONNECTED) {
-		printf("PLUGIN onConnectStatusChangeEvent: Connected - status 2\n");
+		printf("PLUGIN: onConnectStatusChangeEvent: Connected - status 2\n");
 	}
 
 	if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
-		printf("PLUGIN onConnectStatusChangeEvent: Establishing connection - status 3\n");
+		printf("PLUGIN: onConnectStatusChangeEvent: Establishing connection - status 3\n");
 	}
 
 	if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
-		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
+		printf("PLUGIN: onConnectStatusChangeEvent: Established connection - status 4\n");
+
+		send_state();
 	}
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	
-	printf("PLUGIN onClientMoveEvent: User moved\n");
+	printf("PLUGIN: onClientMoveEvent: User moved\n");
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 
-	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
+	printf("PLUGIN: onClientKickFromChannelEvent: User kicked from the channel\n");
 }
 
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 
-	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
+	printf("PLUGIN: onClientKickFromServerEvent: User kicked from the server\n");
 }
 
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
     anyID myID;
 
-    printf("PLUGIN onClientPokeEvent: Received PM message\n");
+    printf("PLUGIN: onClientPokeEvent: Received PM message\n");
 
     return 0;  /* 0 = handle normally, 1 = client will ignore the poke */
 }
 
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
 
-	printf("PLUGIN: onTextMessageEvent: Received text message\n");
+	//printf("PLUGIN: onTextMessageEvent: Received text message\n");
 
+	char *nickname;
+	if (ts3Functions.getClientSelfVariableAsString(serverConnectionHandlerID, CLIENT_NICKNAME, &nickname) == ERROR_ok) {
+		if (fromName != nickname) {
+			printf("PLUGIN: onTextMessageEvent: Received text message - nickname: %s - fromName: %s\n", nickname, fromName);
+			ts3Functions.freeMemory(nickname);
+		}
+	}
+	
 	return 0;
 }
 
@@ -290,6 +301,7 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 		}
 	}
 }
+
 
 void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
 
