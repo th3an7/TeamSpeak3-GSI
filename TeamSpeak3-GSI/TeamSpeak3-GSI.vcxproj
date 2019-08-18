@@ -22,7 +22,7 @@
     <ProjectGuid>{8F3F7725-39F3-4F10-872A-B743B474DD87}</ProjectGuid>
     <RootNamespace>test_plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -131,12 +131,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>R:\downloaded\TeamSpeak3-sdk\pluginsdk\curl-7.65.3\builds\libcurl-vc15-AMD64-release-static-sspi-winssl\include;R:\downloaded\TeamSpeak3-GSI\external\;R:\downloaded\TeamSpeak3-GSI\TeamSpeak3-GSI\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <AdditionalDependencies>libcurl_a.lib;ws2_32.lib;wldap32.lib;Normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>R:\downloaded\TeamSpeak3-sdk\pluginsdk\curl-7.65.3\builds\libcurl-vc15-AMD64-release-static-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
