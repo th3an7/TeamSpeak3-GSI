@@ -22,7 +22,7 @@
     <ProjectGuid>{8F3F7725-39F3-4F10-872A-B743B474DD87}</ProjectGuid>
     <RootNamespace>test_plugin</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -150,10 +150,10 @@
     <ClInclude Include="include\teamspeak\public_errors_rare.h" />
     <ClInclude Include="include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="include\ts3_functions.h" />
-    <ClInclude Include="src\plugin.h" />
+    <ClInclude Include="src\plugin_exports.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\plugin.c" />
+    <ClCompile Include="src\plugin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
