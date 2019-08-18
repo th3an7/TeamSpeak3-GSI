@@ -16,11 +16,11 @@
 #include <ts3_functions.h>
 #include "plugin_exports.hpp"
 
+
+#ifdef _WIN32
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "Ws2_32.lib")
-
-#ifdef _WIN32
 #pragma comment(lib, "Normaliz.lib")
 #endif
 
