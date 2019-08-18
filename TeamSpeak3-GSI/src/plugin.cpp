@@ -43,7 +43,7 @@ void safe_strcpy(char* dest, size_t destSize, char const* src) {
 #define RETURNCODE_BUFSIZE 128
 
 #define PREPARE_JSON_FOR_AURORA(x) \
-x["provider"]["name"] = "ts3"; \
+x["provider"]["name"] = "TeamSpeak"; \
 x["provider"]["appid"] = -1;
 
 static char* pluginID = nullptr;
@@ -150,7 +150,7 @@ int sendJSON_to_Aurora(nlohmann::json json) {
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
-		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump().c_str);
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump().c_str());
 
 		curlResult = curl_easy_perform(curlHandle);
 
@@ -172,19 +172,19 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int n
 
 	if (newStatus == STATUS_CONNECTING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connecting - status 1\n");
-		json["connected"] = 1;
+		json["state"]["connected"] = 1;
 	}
 	else if (newStatus == STATUS_CONNECTED) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connected - status 2\n");
-		json["connected"] = 2;
+		json["state"]["connected"] = 2;
 	}
 	else if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Establishing connection - status 3\n");
-		json["connected"] = 3;
+		json["state"]["connected"] = 3;
 	}
 	else if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
 		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
-		json["connected"] = 4;
+		json["state"]["connected"] = 4;
 	}
 
 	sendJSON_to_Aurora(json);
@@ -196,40 +196,40 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
 
-	json["moved"] = true;
+	json["state"]["moved"] = true;
 
 	sendJSON_to_Aurora(json);
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
-	
+
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
 
-	json["kicked"] = 1;
+	json["state"]["kicked"] = 1;
 
 	sendJSON_to_Aurora(json);
 }
 
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
-	
+
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
 
-	json["kicked"] = 2;
+	json["state"]["kicked"] = 2;
 
 	sendJSON_to_Aurora(json);
 }
 
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
 	printf("PLUGIN onClientPokeEvent: Received PM message\n");
-	
+
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
 
-	json["text"] = 0;
+	json["state"]["text"] = 0;
 
 	sendJSON_to_Aurora(json);
 
@@ -238,11 +238,11 @@ int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClie
 
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
 	printf("PLUGIN: onTextMessageEvent: Received text message\n");
-	
+
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
 
-	json["text"] = 1;
+	json["state"]["text"] = 1;
 
 	sendJSON_to_Aurora(json);
 
@@ -256,15 +256,15 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	if (ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
 		nlohmann::json json;
 		PREPARE_JSON_FOR_AURORA(json);
-		
+
 		if (status == STATUS_TALKING) {
 			printf("--> %s starts talking\n", name);
-			json["talking"] = true;
-			
+			json["state"]["talking"] = true;
+
 		}
 		else {
 			printf("--> %s stops talking\n", name);
-			json["talking"] = false;
+			json["state"]["talking"] = false;
 		}
 
 		sendJSON_to_Aurora(json);
@@ -274,24 +274,24 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
 	nlohmann::json json;
 	PREPARE_JSON_FOR_AURORA(json);
-	
+
 	if (flag == CLIENT_OUTPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client output muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			json["outputMuted"] = true;
+			json["state"]["outputMuted"] = true;
 		}
 		else {
-			json["outputMuted"] = false;
+			json["state"]["outputMuted"] = false;
 		}
 	}
 	else if (flag == CLIENT_INPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client input muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			json["inputMuted"] = true;
+			json["state"]["inputMuted"] = true;
 		}
 		else
 		{
-			json["inputMuted"] = false;
+			json["state"]["inputMuted"] = false;
 		}
 	}
 
