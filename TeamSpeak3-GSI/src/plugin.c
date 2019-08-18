@@ -26,6 +26,7 @@
 #pragma comment(lib, "crypt32.lib" )
 #pragma comment(lib, "Ws2_32.lib")
 
+#define CURL_STATICLIB
 #include <curl/curl.h>
 
 static struct TS3Functions ts3Functions;
@@ -208,7 +209,7 @@ int send_state(void) {
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
-		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, "insertJSONHere");
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, "{\"Hello\":\"world!\"}");
 
 		curlResult = curl_easy_perform(curlHandle);
 
