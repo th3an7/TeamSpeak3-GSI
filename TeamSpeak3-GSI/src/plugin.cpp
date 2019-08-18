@@ -20,7 +20,7 @@
 #include <teamspeak/public_rare_definitions.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <ts3_functions.h>
-#include "plugin.h"
+#include "plugin_exports.hpp"
 
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "crypt32.lib")
@@ -32,12 +32,14 @@
 
 static struct TS3Functions ts3Functions;
 
-#ifdef _WIN32
-#define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
-#define snprintf sprintf_s
-#else
-#define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
-#endif
+void safe_strcpy(char* dest, size_t destSize, char const* src) {
+	for (size_t currentIndex = 0; currentIndex < destSize; currentIndex++) {
+		if (!src[currentIndex]) {
+			break;
+		}
+		dest[currentIndex] = src[currentIndex];
+	}
+}
 
 #define PLUGIN_API_VERSION 23
 
@@ -50,34 +52,10 @@ static struct TS3Functions ts3Functions;
 
 static char* pluginID = NULL;
 
-#ifdef _WIN32
-/* Helper function to convert wchar_T to Utf-8 encoded strings on Windows */
-static int wcharToUtf8(const wchar_t* str, char** result) {
-	int outlen = WideCharToMultiByte(CP_UTF8, 0, str, -1, 0, 0, 0, 0);
-	*result = (char*)malloc(outlen);
-	if (WideCharToMultiByte(CP_UTF8, 0, str, -1, *result, outlen, 0, 0) == 0) {
-		*result = NULL;
-		return -1;
-	}
-	return 0;
-}
-#endif
-
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
-#ifdef _WIN32
-	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
-	static char* result = NULL;  /* Static variable so it's allocated only once */
-	if (!result) {
-		const wchar_t* name = L"Aurora GSI Integration";
-		if (wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Aurora GSI Integration";  /* Conversion failed, fallback here */
-		}
-	}
-	return result;
-#else
+	//Removed UTF16 to UTF8 conversion because this name is fully valid ASCII alphanum and ASCII alphanum is fully valid UTF8
 	return "Aurora GSI Integration";
-#endif
 }
 
 /* Plugin version */
@@ -92,13 +70,11 @@ int ts3plugin_apiVersion() {
 
 /* Plugin author */
 const char* ts3plugin_author() {
-	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
 	return "Th3 Ant 'n SnakePin";
 }
 
 /* Plugin description */
 const char* ts3plugin_description() {
-	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
 	return "Display TeamSpeak3 events as RGB effects in Project Aurora";
 }
 
@@ -164,23 +140,6 @@ void ts3plugin_shutdown() {
  * Following functions are optional, if not needed you don't need to implement them.
  */
 
- /* Tell client if plugin offers a configuration window. If this function is not implemented, it's an assumed "does not offer" (PLUGIN_OFFERS_NO_CONFIGURE). */
-int ts3plugin_offersConfigure() {
-	printf("PLUGIN: offersConfigure\n");
-	/*
-	 * Return values:
-	 * PLUGIN_OFFERS_NO_CONFIGURE         - Plugin does not implement ts3plugin_configure
-	 * PLUGIN_OFFERS_CONFIGURE_NEW_THREAD - Plugin does implement ts3plugin_configure and requests to run this function in an own thread
-	 * PLUGIN_OFFERS_CONFIGURE_QT_THREAD  - Plugin does implement ts3plugin_configure and requests to run this function in the Qt GUI thread
-	 */
-	return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */
-}
-
-/* Plugin might offer a configuration window. If ts3plugin_offersConfigure returns 0, this function does not need to be implemented. */
-void ts3plugin_configure(void* handle, void* qParentWidget) {
-	printf("PLUGIN: configure\n");
-}
-
 /*
  * If the plugin wants to use error return codes, plugin commands, hotkeys or menu items, it needs to register a command ID. This function will be
  * automatically called after the plugin was initialized. This function is optional. If you don't use these features, this function can be omitted.
@@ -189,16 +148,11 @@ void ts3plugin_configure(void* handle, void* qParentWidget) {
 void ts3plugin_registerPluginID(const char* id) {
 	const size_t sz = strlen(id) + 1;
 	pluginID = (char*)malloc(sz * sizeof(char));
-	_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
+	safe_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 }
 
-/* Plugin command keyword. Return NULL or "" if not used. */
-const char* ts3plugin_commandKeyword() {
-	return "";
-}
-
-int send_state(const char *state) {
+int send_state(const char* state) {
 	CURL* curlHandle;
 	CURLcode curlResult;
 
@@ -309,7 +263,7 @@ void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID,
 		else {
 			send_state("{\"outputMuted\": false}");
 		}
-		
+
 	}
 
 	if (flag == CLIENT_INPUT_MUTED) {
@@ -321,6 +275,6 @@ void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID,
 		{
 			send_state("{\"inputMuted\": false}");
 		}
-		
+
 	}
 }

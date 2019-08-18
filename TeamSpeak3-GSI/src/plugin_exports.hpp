@@ -1,11 +1,4 @@
-/*
- * TeamSpeak 3 demo plugin
- *
- * Copyright (c) 2008-2017 TeamSpeak Systems GmbH
- */
-
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#pragma once
 
 #ifdef WIN32
 #define PLUGINS_EXPORTDLL __declspec(dllexport)
@@ -145,6 +138,4 @@ PLUGINS_EXPORTDLL const char* ts3plugin_keyPrefix();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
