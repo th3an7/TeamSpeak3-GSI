@@ -22,9 +22,10 @@
 #include <ts3_functions.h>
 #include "plugin.h"
 
-#pragma comment(lib, "wldap32.lib" )
-#pragma comment(lib, "crypt32.lib" )
+#pragma comment(lib, "wldap32.lib")
+#pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "libcurl_a.lib")
 
 #define CURL_STATICLIB
 #include <curl/curl.h>
