@@ -19,6 +19,11 @@
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "Ws2_32.lib")
+
+#ifdef _WIN32
+#pragma comment(lib, "Normaliz.lib")
+#endif
+
 #pragma comment(lib, "libcurl_a.lib")
 
 #define CURL_STATICLIB
