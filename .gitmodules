@@ -1,7 +1,7 @@
-[submodule "external\\curl"]
-	path = external\\curl
+[submodule "external/curl"]
+	path = external/curl
 	url = https://github.com/curl/curl
-[submodule "external\\nlohmannjson"]
-	path = external\\nlohmannjson
+[submodule "external/nlohmannjson"]
+	path = external/nlohmannjson
 	url = https://github.com/nlohmann/json
 	branch = master
