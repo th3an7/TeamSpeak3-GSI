@@ -14,7 +14,7 @@
 #include <teamspeak/public_rare_definitions.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <ts3_functions.h>
-#include "plugin_exports.hpp"
+#include "plugin_exports.h"
 
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "crypt32.lib")
@@ -216,8 +216,6 @@ void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, any
 }
 
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
-	anyID myID;
-
 	printf("PLUGIN onClientPokeEvent: Received PM message\n");
 	sendJSON_to_Aurora("{\"text\": 0}");
 

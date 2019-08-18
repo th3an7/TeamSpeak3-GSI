@@ -41,12 +41,12 @@
     <ClInclude Include="include\ts3_functions.h">
       <Filter>Header Files\teamspeak</Filter>
     </ClInclude>
-    <ClInclude Include="src\plugin_exports.hpp">
+    <ClInclude Include="src\plugin_exports.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\plugin.cpp">
+    <ClCompile Include="src\plugin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

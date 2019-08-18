@@ -150,10 +150,10 @@
     <ClInclude Include="include\teamspeak\public_errors_rare.h" />
     <ClInclude Include="include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="include\ts3_functions.h" />
-    <ClInclude Include="src\plugin_exports.hpp" />
+    <ClInclude Include="src\plugin_exports.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\plugin.cpp" />
+    <ClCompile Include="src\plugin.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
