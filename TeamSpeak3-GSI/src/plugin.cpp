@@ -1,12 +1,4 @@
-#ifdef _WIN32
-#pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
-//#include <Windows.h>
-#endif
-
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 
 #include <teamspeak/public_errors.h>
 #include <teamspeak/public_errors_rare.h>
@@ -29,7 +21,7 @@
 #define CURL_STATICLIB
 #include <curl/curl.h>
 
-static struct TS3Functions ts3Functions;
+static TS3Functions ts3Functions;
 
 void safe_strcpy(char* dest, size_t destSize, char const* src) {
 	for (size_t currentIndex = 0; currentIndex < destSize; currentIndex++) {
@@ -49,7 +41,7 @@ void safe_strcpy(char* dest, size_t destSize, char const* src) {
 #define CHANNELINFO_BUFSIZE 512
 #define RETURNCODE_BUFSIZE 128
 
-static char* pluginID = NULL;
+static char* pluginID = nullptr;
 
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
@@ -78,7 +70,7 @@ const char* ts3plugin_description() {
 }
 
 /* Set TeamSpeak 3 callback functions */
-void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
+void ts3plugin_setFunctionPointers(const TS3Functions funcs) {
 	ts3Functions = funcs;
 }
 
@@ -128,9 +120,9 @@ void ts3plugin_shutdown() {
 	 */
 
 	 /* Free pluginID if we registered it */
-	if (pluginID) {
-		free(pluginID);
-		pluginID = NULL;
+	if (pluginID != nullptr) {
+		delete[] pluginID;
+		pluginID = nullptr;
 	}
 }
 
@@ -146,7 +138,7 @@ void ts3plugin_shutdown() {
  */
 void ts3plugin_registerPluginID(const char* id) {
 	const size_t sz = strlen(id) + 1;
-	pluginID = (char*)malloc(sz * sizeof(char));
+	pluginID = new char[sz];
 	safe_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 }
