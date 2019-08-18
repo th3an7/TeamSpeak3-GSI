@@ -42,6 +42,10 @@ void safe_strcpy(char* dest, size_t destSize, char const* src) {
 #define CHANNELINFO_BUFSIZE 512
 #define RETURNCODE_BUFSIZE 128
 
+#define PREPARE_JSON_FOR_AURORA(x) \
+x["provider"]["name"] = "ts3"; \
+x["provider"]["appid"] = -1;
+
 static char* pluginID = nullptr;
 
 /* Unique name identifying this plugin */
@@ -75,10 +79,6 @@ void ts3plugin_setFunctionPointers(const TS3Functions funcs) {
 	ts3Functions = funcs;
 }
 
-/*
- * Custom code called right after loading the plugin. Returns 0 on success, 1 on failure.
- * If the function returns 1 on failure, the plugin will be unloaded again.
- */
 int ts3plugin_init() {
 	char appPath[PATH_BUFSIZE];
 	char resourcesPath[PATH_BUFSIZE];
@@ -106,7 +106,6 @@ int ts3plugin_init() {
 	 * For normal case, if a plugin really failed to load because of an error, the correct return value is 1. */
 }
 
-/* Custom code called right before the plugin is unloaded */
 void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
 	printf("PLUGIN: shutdown\n");
@@ -132,11 +131,6 @@ void ts3plugin_shutdown() {
  * Following functions are optional, if not needed you don't need to implement them.
  */
 
-/*
- * If the plugin wants to use error return codes, plugin commands, hotkeys or menu items, it needs to register a command ID. This function will be
- * automatically called after the plugin was initialized. This function is optional. If you don't use these features, this function can be omitted.
- * Note the passed pluginID parameter is no longer valid after calling this function, so you must copy it and store it in the plugin.
- */
 void ts3plugin_registerPluginID(const char* id) {
 	const size_t sz = strlen(id) + 1;
 	pluginID = new char[sz];
@@ -144,7 +138,7 @@ void ts3plugin_registerPluginID(const char* id) {
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 }
 
-int sendJSON_to_Aurora(const char* state) {
+int sendJSON_to_Aurora(nlohmann::json json) {
 	CURL* curlHandle;
 	CURLcode curlResult;
 
@@ -156,7 +150,7 @@ int sendJSON_to_Aurora(const char* state) {
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
-		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, /*"{\"Hello\":\"world!\"}"*/ state);
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump().c_str);
 
 		curlResult = curl_easy_perform(curlHandle);
 
@@ -173,59 +167,84 @@ int sendJSON_to_Aurora(const char* state) {
 }
 
 void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int newStatus, unsigned int errorNumber) {
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
 
 	if (newStatus == STATUS_CONNECTING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connecting - status 1\n");
-		sendJSON_to_Aurora("{\"connected\": 1}");
+		json["connected"] = 1;
 	}
-
-	if (newStatus == STATUS_CONNECTED) {
+	else if (newStatus == STATUS_CONNECTED) {
 		printf("PLUGIN onConnectStatusChangeEvent: Connected - status 2\n");
-		sendJSON_to_Aurora("{\"connected\": 2}");
+		json["connected"] = 2;
 	}
-
-	if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
+	else if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
 		printf("PLUGIN onConnectStatusChangeEvent: Establishing connection - status 3\n");
-		sendJSON_to_Aurora("{\"connected\": 3}");
+		json["connected"] = 3;
+	}
+	else if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
+		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
+		json["connected"] = 4;
 	}
 
-	if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
-		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
-		sendJSON_to_Aurora("{\"connected\": 4}");
-	}
+	sendJSON_to_Aurora(json);
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-
 	printf("PLUGIN onClientMoveEvent: User moved\n");
-	sendJSON_to_Aurora("{\"moved\": true}");
+
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+
+	json["moved"] = true;
+
+	sendJSON_to_Aurora(json);
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
-
 	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
-	sendJSON_to_Aurora("{\"kicked\": 1}");
+	
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+
+	json["kicked"] = 1;
+
+	sendJSON_to_Aurora(json);
 }
 
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
-
 	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
-	sendJSON_to_Aurora("{\"kicked\": 2}");
+	
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+
+	json["kicked"] = 2;
+
+	sendJSON_to_Aurora(json);
 }
 
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
-	anyID myID;
-
 	printf("PLUGIN onClientPokeEvent: Received PM message\n");
-	sendJSON_to_Aurora("{\"text\": 0}");
+	
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+
+	json["text"] = 0;
+
+	sendJSON_to_Aurora(json);
 
 	return 0;  /* 0 = handle normally, 1 = client will ignore the poke */
 }
 
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-
 	printf("PLUGIN: onTextMessageEvent: Received text message\n");
-	sendJSON_to_Aurora("{\"text\": 1}");
+	
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+
+	json["text"] = 1;
+
+	sendJSON_to_Aurora(json);
 
 	return 0;
 }
@@ -233,40 +252,48 @@ int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetM
 void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	/* Demonstrate usage of getClientDisplayName */
 	char name[512];
+
 	if (ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
+		nlohmann::json json;
+		PREPARE_JSON_FOR_AURORA(json);
+		
 		if (status == STATUS_TALKING) {
 			printf("--> %s starts talking\n", name);
-			sendJSON_to_Aurora("{\"talking\": true}");
+			json["talking"] = true;
+			
 		}
 		else {
 			printf("--> %s stops talking\n", name);
-			sendJSON_to_Aurora("{\"talking\": false}");
+			json["talking"] = false;
 		}
+
+		sendJSON_to_Aurora(json);
 	}
 }
 
 void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
-
+	nlohmann::json json;
+	PREPARE_JSON_FOR_AURORA(json);
+	
 	if (flag == CLIENT_OUTPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client output muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			sendJSON_to_Aurora("{\"outputMuted\": true}");
+			json["outputMuted"] = true;
 		}
 		else {
-			sendJSON_to_Aurora("{\"outputMuted\": false}");
+			json["outputMuted"] = false;
 		}
-
 	}
-
-	if (flag == CLIENT_INPUT_MUTED) {
+	else if (flag == CLIENT_INPUT_MUTED) {
 		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client input muted: %s\n", newValue);
 		if (strcmp(newValue, "1") == 0) {
-			sendJSON_to_Aurora("{\"inputMuted\": true}");
+			json["inputMuted"] = true;
 		}
 		else
 		{
-			sendJSON_to_Aurora("{\"inputMuted\": false}");
+			json["inputMuted"] = false;
 		}
-
 	}
+
+	sendJSON_to_Aurora(json);
 }
