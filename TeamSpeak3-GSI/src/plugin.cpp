@@ -1,6 +1,6 @@
 #ifdef _WIN32
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
-#include <Windows.h>
+//#include <Windows.h>
 #endif
 
 #include <stdio.h>
