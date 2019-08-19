@@ -150,7 +150,7 @@ int sendJSON_to_Aurora(nlohmann::json json) {
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
-		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump().c_str());
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump(-1,' ',true).c_str());
 
 		curlResult = curl_easy_perform(curlHandle);
 
