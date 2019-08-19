@@ -145,8 +145,7 @@ int sendJSON_to_Aurora(nlohmann::json json) {
 	/* get a curl handle */
 	curlHandle = curl_easy_init();
 	if (curlHandle) {
-		struct curl_slist* headerstruct = NULL;
-		headerstruct = curl_slist_append(headerstruct, "Content-Type: application/json");
+		struct curl_slist* headerstruct = curl_slist_append(NULL, "Content-Type: application/json");
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
