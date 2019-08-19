@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\plugin_definitions.h" />
+    <ClInclude Include="include\eventHooks.hpp" />
     <ClInclude Include="include\teamlog\logtypes.h" />
     <ClInclude Include="include\teamspeak\clientlib_publicdefinitions.h" />
     <ClInclude Include="include\teamspeak\public_definitions.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="src\plugin_exports.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\eventHooks.cpp" />
     <ClCompile Include="src\plugin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
