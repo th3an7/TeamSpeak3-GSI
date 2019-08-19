@@ -8,7 +8,7 @@
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <ts3_functions.h>
 
-int sendJSON_to_Aurora(rapidjson::Document& json)
+int sendJSON_to_Aurora(rapidjson::Document& json);
 
 extern TS3Functions ts3Functions;
 
