@@ -10,6 +10,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include <rapidjson/pointer.h>
 
 #include "plugin_exports.hpp"
 
@@ -26,7 +27,7 @@
 #define CURL_STATICLIB
 #include <curl/curl.h>
 
-static TS3Functions ts3Functions;
+TS3Functions ts3Functions;
 
 void safe_strcpy(char* dest, size_t destSize, char const* src) {
 	for (size_t currentIndex = 0; currentIndex < destSize; currentIndex++) {
@@ -45,10 +46,6 @@ void safe_strcpy(char* dest, size_t destSize, char const* src) {
 #define SERVERINFO_BUFSIZE 256
 #define CHANNELINFO_BUFSIZE 512
 #define RETURNCODE_BUFSIZE 128
-
-#define PREPARE_JSON_FOR_AURORA(x) \
-x["provider"]["name"] = "TeamSpeak"; \
-x["provider"]["appid"] = -1;
 
 static char* pluginID = nullptr;
 
@@ -130,11 +127,6 @@ void ts3plugin_shutdown() {
 	}
 }
 
-/****************************** Optional functions ********************************/
-/*
- * Following functions are optional, if not needed you don't need to implement them.
- */
-
 void ts3plugin_registerPluginID(const char* id) {
 	const size_t sz = strlen(id) + 1;
 	pluginID = new char[sz];
@@ -155,6 +147,7 @@ int sendJSON_to_Aurora(rapidjson::Document& json) {
 
 
 		rapidjson::StringBuffer buffer; rapidjson::Writer<rapidjson::StringBuffer> writer(buffer); json.Accept(writer);
+
 		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, buffer.GetString());
 
 		curlResult = curl_easy_perform(curlHandle);
@@ -171,134 +164,3 @@ int sendJSON_to_Aurora(rapidjson::Document& json) {
 	return 0;
 }
 
-void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int newStatus, unsigned int errorNumber) {
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	if (newStatus == STATUS_CONNECTING) {
-		printf("PLUGIN onConnectStatusChangeEvent: Connecting - status 1\n");
-		json["state"]["connected"] = 1;
-	}
-	else if (newStatus == STATUS_CONNECTED) {
-		printf("PLUGIN onConnectStatusChangeEvent: Connected - status 2\n");
-		json["state"]["connected"] = 2;
-	}
-	else if (newStatus == STATUS_CONNECTION_ESTABLISHING) {
-		printf("PLUGIN onConnectStatusChangeEvent: Establishing connection - status 3\n");
-		json["state"]["connected"] = 3;
-	}
-	else if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
-		printf("PLUGIN onConnectStatusChangeEvent: Established connection - status 4\n");
-		json["state"]["connected"] = 4;
-	}
-
-	sendJSON_to_Aurora(json);
-}
-
-void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-	printf("PLUGIN onClientMoveEvent: User moved\n");
-
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	json["state"]["moved"] = true;
-
-	sendJSON_to_Aurora(json);
-}
-
-void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
-	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
-
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	json["state"]["kicked"] = 1;
-
-	sendJSON_to_Aurora(json);
-}
-
-void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
-	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
-
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	json["state"]["kicked"] = 2;
-
-	sendJSON_to_Aurora(json);
-}
-
-int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
-	printf("PLUGIN onClientPokeEvent: Received PM message\n");
-
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	json["state"]["text"] = 0;
-
-	sendJSON_to_Aurora(json);
-
-	return 0;  /* 0 = handle normally, 1 = client will ignore the poke */
-}
-
-int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-	printf("PLUGIN: onTextMessageEvent: Received text message\n");
-
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	json["state"]["text"] = 1;
-
-	sendJSON_to_Aurora(json);
-
-	return 0;
-}
-
-void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
-	/* Demonstrate usage of getClientDisplayName */
-	char name[512];
-
-	if (ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
-		rapidjson::Document json;
-		PREPARE_JSON_FOR_AURORA(json);
-
-		if (status == STATUS_TALKING) {
-			printf("--> %s starts talking\n", name);
-			json["state"]["talking"] = true;
-
-		}
-		else {
-			printf("--> %s stops talking\n", name);
-			json["state"]["talking"] = false;
-		}
-
-		sendJSON_to_Aurora(json);
-	}
-}
-
-void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
-	rapidjson::Document json;
-	PREPARE_JSON_FOR_AURORA(json);
-
-	if (flag == CLIENT_OUTPUT_MUTED) {
-		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client output muted: %s\n", newValue);
-		if (strcmp(newValue, "1") == 0) {
-			json["state"]["outputMuted"] = true;
-		}
-		else {
-			json["state"]["outputMuted"] = false;
-		}
-	}
-	else if (flag == CLIENT_INPUT_MUTED) {
-		printf("PLUGIN: onClientSelfVariableUpdateEvent: Client input muted: %s\n", newValue);
-		if (strcmp(newValue, "1") == 0) {
-			json["state"]["inputMuted"] = true;
-		}
-		else
-		{
-			json["state"]["inputMuted"] = false;
-		}
-	}
-
-	sendJSON_to_Aurora(json);
-}
