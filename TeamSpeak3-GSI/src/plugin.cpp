@@ -6,7 +6,11 @@
 #include <teamspeak/public_rare_definitions.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <ts3_functions.h>
-#include <nlohmann/json.hpp>
+
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 #include "plugin_exports.hpp"
 
 
@@ -138,19 +142,20 @@ void ts3plugin_registerPluginID(const char* id) {
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
 }
 
-int sendJSON_to_Aurora(nlohmann::json json) {
+int sendJSON_to_Aurora(rapidjson::Document& json) {
 	CURL* curlHandle;
 	CURLcode curlResult;
 
 	/* get a curl handle */
 	curlHandle = curl_easy_init();
 	if (curlHandle) {
-		struct curl_slist* headerstruct = NULL;
-		headerstruct = curl_slist_append(headerstruct, "Content-Type: application/json");
+		struct curl_slist* headerstruct = curl_slist_append(NULL, "Content-Type: application/json");
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headerstruct);
 		curl_easy_setopt(curlHandle, CURLOPT_URL, "http://localhost:9088");
 
-		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, json.dump(-1,' ',true).c_str());
+
+		rapidjson::StringBuffer buffer; rapidjson::Writer<rapidjson::StringBuffer> writer(buffer); json.Accept(writer);
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, buffer.GetString());
 
 		curlResult = curl_easy_perform(curlHandle);
 
@@ -167,7 +172,7 @@ int sendJSON_to_Aurora(nlohmann::json json) {
 }
 
 void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int newStatus, unsigned int errorNumber) {
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	if (newStatus == STATUS_CONNECTING) {
@@ -193,7 +198,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 severConnectionHandlerID, int n
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	printf("PLUGIN onClientMoveEvent: User moved\n");
 
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	json["state"]["moved"] = true;
@@ -204,7 +209,7 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 	printf("PLUGIN onClientKickFromChannelEvent: User kicked from the channel\n");
 
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	json["state"]["kicked"] = 1;
@@ -215,7 +220,7 @@ void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, an
 void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
 	printf("PLUGIN onClientKickFromServerEvent: User kicked from the server\n");
 
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	json["state"]["kicked"] = 2;
@@ -226,7 +231,7 @@ void ts3plugin_onClientKickFromServerEvent(uint64 serverConnectionHandlerID, any
 int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClientID, const char* pokerName, const char* pokerUniqueIdentity, const char* message, int ffIgnored) {
 	printf("PLUGIN onClientPokeEvent: Received PM message\n");
 
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	json["state"]["text"] = 0;
@@ -239,7 +244,7 @@ int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClie
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
 	printf("PLUGIN: onTextMessageEvent: Received text message\n");
 
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	json["state"]["text"] = 1;
@@ -254,7 +259,7 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	char name[512];
 
 	if (ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
-		nlohmann::json json;
+		rapidjson::Document json;
 		PREPARE_JSON_FOR_AURORA(json);
 
 		if (status == STATUS_TALKING) {
@@ -272,7 +277,7 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 }
 
 void ts3plugin_onClientSelfVariableUpdateEvent(uint64 serverConnectionHandlerID, int flag, const char* oldValue, const char* newValue) {
-	nlohmann::json json;
+	rapidjson::Document json;
 	PREPARE_JSON_FOR_AURORA(json);
 
 	if (flag == CLIENT_OUTPUT_MUTED) {
